@@ -1,0 +1,32 @@
+#!/bin/bash
+#MACHINE=$1
+#
+#if [ "$MACHINE" != "qemux86" ] && [ "$MACHINE" != "valleyisland-32" ] && [ "$MACHINE" != "valleyisland-64" ]
+#then
+#	echo "$0 [qemux86|valleyisland-32|valleyisland-64]"
+#	exit 1
+#fi
+
+MACHINE=${MACHINE:-valleyisland-32}
+
+source ../oe-init-build-env valleyisland
+
+INTEL_META="meta-intel meta-intel/meta-isg/meta-valleyisland meta-intel/meta-tlk"
+BBPLAY_CONF=conf/bblayers.conf
+LOCAL_CONF=conf/local.conf
+
+read no meta_path <<< `grep -n meta-yocto-bsp $BBPLAY_CONF`
+
+if [ "`grep meta-intel $BBPLAY_CONF`" = "" ]
+then
+	no=${no%:}
+	meta_path=${meta_path%/*}
+	for meta in $INTEL_META
+	do
+		insert_meta="\\ \\ ${meta_path}/${meta} \\\\"
+		no=`expr $no + 1`
+		sed -i "${no} i ${insert_meta}" $BBPLAY_CONF
+	done
+fi
+
+sed -ie "s/^MACHINE.*/MACHINE ?= \"${MACHINE}\"/" $LOCAL_CONF
