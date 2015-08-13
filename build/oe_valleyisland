@@ -30,3 +30,11 @@ then
 fi
 
 sed -ie "s/^MACHINE.*/MACHINE ?= \"${MACHINE}\"/" $LOCAL_CONF
+
+license_pack_list="commercial_libav commercial_x264 commercial_gstreamer1.0-libav"
+if [ "$(grep -E "^LICENSE_FLAGS_WHITELIST" $LOCAL_CONF)" = "" ]
+then
+	echo "LICENSE_FLAGS_WHITELIST = \"${license_pack_list}\"" >> $LOCAL_CONF
+else
+	sed -ie "s/^LICENSE_FLAGS_WHITELIST\s*=\s*.*$/LICENSE_FLAGS_WHITELIST = \"${license_pack_list}\"/" $LOCAL_CONF
+fi
